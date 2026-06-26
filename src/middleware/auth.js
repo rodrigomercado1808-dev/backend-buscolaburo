@@ -13,8 +13,21 @@ export const authenticate = async (req, res, next) => {
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Error al verificar token:', error);
-    return res.status(401).json({ error: 'Token inválido o expirado.' });
+    console.error('Error detallado al verificar token:', {
+      code: error.code,
+      message: error.message,
+      // No logueamos el token completo por seguridad, pero sí su existencia
+      hasToken: !!idToken
+    });
+
+    let userMessage = 'Token inválido o expirado.';
+    if (error.code === 'auth/id-token-expired') {
+      userMessage = 'La sesión ha expirado. Por favor, inicia sesión nuevamente.';
+    } else if (error.code === 'auth/argument-error') {
+      userMessage = 'Error en el formato del token de autenticación.';
+    }
+
+    return res.status(401).json({ error: userMessage, details: error.code });
   }
 };
 
