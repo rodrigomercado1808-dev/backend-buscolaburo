@@ -8,16 +8,19 @@ import apiRoutes from './routes/api.js';
 
 const app = express();
 
+// Configuración necesaria para Render (detrás de un proxy)
+app.set('trust proxy', 1);
+
 // Configuración de CORS flexible para producción
 app.use(cors({
-  origin: '*', // Permite peticiones desde cualquier origen. En producción podrías especificar tu dominio de frontend.
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Security
 app.use(helmet({
-  crossOriginResourcePolicy: false, // Necesario para cargar recursos de otros dominios si fuera el caso
+  crossOriginResourcePolicy: false,
 }));
 
 app.use(express.json());
@@ -30,8 +33,10 @@ app.use(morgan('dev'));
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Aumentado para evitar bloqueos accidentales en desarrollo/pruebas
-  message: { error: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde.' }
+  max: 500,
+  message: { error: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
