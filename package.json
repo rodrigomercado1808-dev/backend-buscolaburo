@@ -1,0 +1,27 @@
+{
+  "name": "busco-laburo-backend",
+  "version": "1.0.0",
+  "description": "Backend para Busco Laburo",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.0",
+    "firebase-admin": "^13.0.1",
+    "helmet": "^8.0.0",
+    "mercadopago": "^2.2.3",
+    "morgan": "^1.10.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
