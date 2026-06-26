@@ -3,28 +3,39 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Función para limpiar la clave privada de Firebase
 const formatPrivateKey = (key) => {
   if (!key) return undefined;
-  // Reemplaza los escapes de saltos de línea literales por saltos de línea reales
-  return key.replace(/\\n/g, '\n');
+  // Maneja tanto claves con saltos de línea reales como escapados (\n)
+  // y elimina comillas accidentales que puedan venir de variables de entorno
+  let formatted = key.replace(/\\n/g, '\n').trim();
+  if (formatted.startsWith('"') && formatted.endsWith('"')) {
+    formatted = formatted.substring(1, formatted.length - 1);
+  }
+  return formatted;
 };
 
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY),
-};
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
 
 if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      storageBucket: `${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app`
-    });
-    console.log('Firebase Admin inicializado correctamente para el proyecto:', process.env.FIREBASE_PROJECT_ID);
-  } catch (error) {
-    console.error('Error inicializando Firebase Admin:', error);
+  if (!projectId || !clientEmail || !privateKey) {
+    console.error('❌ ERROR: Faltan variables de entorno críticas de Firebase.');
+    console.log('Valores actuales:', { projectId, clientEmail, hasPrivateKey: !!privateKey });
+  } else {
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        }),
+        storageBucket: `${projectId}.firebasestorage.app`
+      });
+      console.log('✅ Firebase Admin inicializado correctamente para:', projectId);
+    } catch (error) {
+      console.error('❌ Error al inicializar Firebase Admin:', error.message);
+    }
   }
 }
 
